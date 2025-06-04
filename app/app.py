@@ -1,5 +1,6 @@
 import chainlit as cl
-from langchain.chat_models import ChatOpenAI
+import os
+from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import StrOutputParser
 from langchain.chains import LLMChain
@@ -15,7 +16,8 @@ async def on_chat_start():
     # to set streaming=True for streaming tokens
     ##########################################################################
     model = ChatOpenAI(
-        ...
+        model="gpt-4.1",
+        streaming=True,
     )
 
     ##########################################################################
@@ -28,7 +30,16 @@ async def on_chat_start():
     # Refer to the documentation listed in the README.md file for reference.
     ##########################################################################
     prompt = ChatPromptTemplate.from_messages(
-        ...
+        [
+            (
+                "system",
+                "You are Cht GPT, a helpful assistant. Answer the question as best you can."
+            ),
+            (
+                "human",
+                "{question}"
+            )
+        ]
     )
     ##########################################################################
     # Exercise 1c:
@@ -37,8 +48,8 @@ async def on_chat_start():
     # LLM outputs.
     ##########################################################################
     chain = LLMChain(
-        llm=...,
-        prompt=...,
+        llm=model,
+        prompt=prompt,
         output_parser=StrOutputParser()
     )
 
@@ -60,7 +71,7 @@ async def main(message: cl.Message):
     # response to the user.
     ##########################################################################
     response = await chain.arun(
-        ...,
+        question=message.content,
         callbacks=[cl.LangchainCallbackHandler()]
     )
 
